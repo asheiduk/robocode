@@ -147,8 +147,6 @@ public final class RobocodeMain extends RobocodeMainBase {
 					System.exit(8);
 				}
 
-				setup.exitOnComplete = true;
-
 				battleManager.setBattleFilename(setup.battleFilename);
 				if (new File(battleManager.getBattleFilename()).exists()) {
 					battleManager.startNewBattle(battleManager.loadBattleProperties(), false, enableCLIRecording);
@@ -157,7 +155,6 @@ public final class RobocodeMain extends RobocodeMainBase {
 					System.exit(8);
 				}
 			} else if (setup.replayFilename != null) {
-				setup.exitOnComplete = true;
 				if (setup.replayFilename.toLowerCase().endsWith("xml.zip")) {
 					recordManager.loadRecord(setup.replayFilename, BattleRecordFormat.XML_ZIP);
 				} else {
@@ -246,6 +243,8 @@ public final class RobocodeMain extends RobocodeMainBase {
 				if (soundManager != null) {
 					soundManager.setEnableSound(false);
 				}
+			} else if (currentArg.equals("-exitOnComplete")) {
+				setup.exitOnComplete = true;
 			} else if (currentArg.equals("-?") || currentArg.equalsIgnoreCase("-help")) {
 				printUsage();
 				System.exit(0);
@@ -290,6 +289,7 @@ public final class RobocodeMain extends RobocodeMainBase {
 						+ "  -? or -help                Prints out the command line usage of Robocode\n"
 						+ "  -cwd <path>                Change the current working directory\n"
 						+ "  -battle <battle file>      Run the battle specified in a battle file\n"
+						+ "  -exitOnComplete            Exit UI after the battle has ended.\nOnly usefull with '-battle' or '-replay'."
 						+ "  -results <results file>    Save results to the specified text file\n"
 						+ "  -record <bin record file>  Record the battle into the specified file as binary\n"
 						+ "  -recordXML <xml rec file>  Record the battle into the specified file as XML\n"
@@ -369,6 +369,35 @@ public final class RobocodeMain extends RobocodeMainBase {
 			}
 			if (setup.recordXmlFilename != null) {
 				recordManager.saveRecord(setup.recordXmlFilename, BattleRecordFormat.XML, new SerializableOptions(false));
+			}
+		}
+		
+		@Override
+		public void onBattleFinished(BattleFinishedEvent event) {
+			if (setup.exitOnComplete && windowManager.isGUIEnabled()) {
+				/*
+				 * The are two problems here:
+				 * 
+				 * a) Although BattleFinishedEvent states, that it is the last event, it is not. 
+				 * 	  The results are dispatched later using BattleCompletedEvent - in case there 
+				 * 	  *are* results. So we are to early here if we want to save the results.
+				 * 
+				 * b) Closing the window should - in a perfect world - not terminate the JVM
+				 *    because this we are executed in a non-daemon thread. But closing the window
+				 *    using RoboFrame will do a hard System.exit() when it receives a WINDOW_CLOSED event.
+				 * 
+				 * Solution - dispose the window after all BattleEvents have been delivered which
+				 * includes saving stuff like the results.
+				 * 
+				 */
+				Thread t = new Thread("Waiting for shutdown..."){
+					@Override
+					public void run() {
+						battleManager.waitTillOver();
+						windowManager.getRobocodeFrame().dispose();
+					}
+				};
+				t.start();
 			}
 		}
 
