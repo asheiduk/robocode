@@ -58,7 +58,7 @@ public class BattleResultsTableModel extends javax.swing.table.AbstractTableMode
 	}
 
 	public int getColumnCount() {
-		return 12;
+		return 13;
 	}
 
 	@Override
@@ -99,6 +99,9 @@ public class BattleResultsTableModel extends javax.swing.table.AbstractTableMode
 
 		case 11:
 			return " 3rds ";
+		
+		case 12:
+			return "deaths";
 
 		default:
 			return "";
@@ -172,6 +175,9 @@ public class BattleResultsTableModel extends javax.swing.table.AbstractTableMode
 
 		case 11:
 			return "" + statistics.getThirds();
+			
+		case 12:
+			return "" + statistics.getDeaths();
 
 		default:
 			return "";

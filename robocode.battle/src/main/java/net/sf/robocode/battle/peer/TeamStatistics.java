@@ -118,6 +118,15 @@ class TeamStatistics implements ContestantStatistics {
 		}
 		return d;
 	}
+	
+	public int getTotalDeaths() {
+		int d = 0;
+		
+		for (RobotPeer teammate : teamPeer) {
+			d += teammate.getRobotStatistics().getTotalDeaths();
+		}
+		return d;
+	}
 
 	public double getCurrentScore() {
 		double d = 0;
@@ -186,6 +195,6 @@ class TeamStatistics implements ContestantStatistics {
 		return new BattleResults(teamPeer.getName(), rank, getTotalScore(), getTotalSurvivalScore(),
 				getTotalLastSurvivorBonus(), getTotalBulletDamageScore(), getTotalBulletKillBonus(),
 				getTotalRammingDamageScore(), getTotalRammingKillBonus(), getTotalFirsts(), getTotalSeconds(),
-				getTotalThirds());
+				getTotalThirds(), getTotalDeaths());
 	}
 }

@@ -53,10 +53,11 @@ public class RobotResults extends BattleResults {
 			double ramDamageBonus,
 			int firsts,
 			int seconds,
-			int thirds
+			int thirds,
+			int deaths
 			) {
 		super(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage, bulletDamageBonus, ramDamage,
-				ramDamageBonus, firsts, seconds, thirds);
+				ramDamageBonus, firsts, seconds, thirds, deaths);
 		this.robot = robot;
 	}
 
@@ -73,7 +74,7 @@ public class RobotResults extends BattleResults {
 		super(results.getTeamLeaderName(), results.getRank(), results.getScore(), results.getSurvival(),
 				results.getLastSurvivorBonus(), results.getBulletDamage(), results.getBulletDamageBonus(),
 				results.getRamDamage(), results.getRamDamageBonus(), results.getFirsts(), results.getSeconds(),
-				results.getThirds());
+				results.getThirds(), results.getDeaths());
 		this.robot = robot;
 	}
 
@@ -127,6 +128,7 @@ public class RobotResults extends BattleResults {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((teamLeaderName == null) ? 0 : teamLeaderName.hashCode());
 		result = prime * result + thirds;
+		result = prime * result + deaths;
 		return result;
 	}
 
@@ -181,6 +183,9 @@ public class RobotResults extends BattleResults {
 			return false;
 		}
 		if (thirds != other.thirds) {
+			return false;
+		}
+		if (deaths != other.deaths){
 			return false;
 		}
 		return true;

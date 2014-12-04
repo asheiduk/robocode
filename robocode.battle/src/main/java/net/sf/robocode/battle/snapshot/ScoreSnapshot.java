@@ -64,6 +64,9 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 
 	/** The total number of third places */
 	private int totalThirds;
+	
+	/** The total number of deaths the robot suffered */
+	private int totalDeaths;
 
 	/** The current score */
 	private double currentScore;
@@ -109,6 +112,7 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		totalFirsts = score.getTotalFirsts();
 		totalSeconds = score.getTotalSeconds();
 		totalThirds = score.getTotalThirds();
+		totalDeaths = score.getTotalDeaths();
 		currentScore = score.getCurrentScore();
 		currentBulletDamageScore = score.getCurrentBulletDamageScore();
 		currentSurvivalScore = score.getCurrentSurvivalScore();
@@ -137,6 +141,7 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		totalFirsts = score1.getTotalFirsts() + score2.getTotalFirsts();
 		totalSeconds = score1.getTotalSeconds() + score2.getTotalSeconds();
 		totalThirds = score1.getTotalThirds() + score2.getTotalThirds();
+		totalDeaths = score1.getTotalDeaths() + score2.getTotalDeaths();
 		currentScore = score1.getCurrentScore() + score2.getCurrentScore();
 		currentSurvivalScore = score1.getCurrentSurvivalScore() + score2.getCurrentSurvivalScore();
 		currentBulletDamageScore = score1.getCurrentBulletDamageScore() + score2.getCurrentBulletDamageScore();
@@ -225,6 +230,13 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 	 */
 	public int getTotalThirds() {
 		return totalThirds;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getTotalDeaths() {
+		return totalDeaths;
 	}
 
 	/**
@@ -482,6 +494,7 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 		temp = Double.doubleToLongBits(totalSurvivalScore);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + totalThirds;
+		result = prime * result + totalDeaths;
 		return result;
 	}
 
@@ -555,6 +568,9 @@ final class ScoreSnapshot implements Serializable, IXmlSerializable, IScoreSnaps
 			return false;
 		}
 		if (totalThirds != other.totalThirds) {
+			return false;
+		}
+		if (totalDeaths != other.totalDeaths) {
 			return false;
 		}
 		return true;

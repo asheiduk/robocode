@@ -49,6 +49,8 @@ public class RobotStatistics implements ContestantStatistics {
 	private int totalFirsts;
 	private int totalSeconds;
 	private int totalThirds;
+	
+	private int totalDeaths;
 
 	RobotStatistics(RobotPeer robotPeer, int numberOfRobots) {
 		super();
@@ -131,6 +133,10 @@ public class RobotStatistics implements ContestantStatistics {
 
 	public int getTotalThirds() {
 		return totalThirds;
+	}
+	
+	public int getTotalDeaths() {
+		return totalDeaths;
 	}
 
 	public double getCurrentScore() {
@@ -238,6 +244,8 @@ public class RobotStatistics implements ContestantStatistics {
 	}
 
 	public void scoreRobotDeath(int enemiesRemaining) {
+		totalDeaths++;
+		
 		if (!robotPeer.isSentryRobot()) {
 			switch (enemiesRemaining) {
 			case 0:
@@ -271,7 +279,7 @@ public class RobotStatistics implements ContestantStatistics {
 	public BattleResults getFinalResults() {
 		return new BattleResults(robotPeer.getTeamName(), rank, totalScore, totalSurvivalScore, totalLastSurvivorBonus,
 				totalBulletDamageScore, totalBulletKillBonus, totalRammingDamageScore, totalRammingKillBonus, totalFirsts,
-				totalSeconds, totalThirds);
+				totalSeconds, totalThirds, totalDeaths);
 	}
 
 	private double getRobotDamage(String robot) {

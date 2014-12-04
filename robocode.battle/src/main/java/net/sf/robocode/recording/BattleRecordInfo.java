@@ -168,14 +168,14 @@ class BattleRecordInfo implements Serializable, IXmlSerializable {
 		private static final long serialVersionUID = BattleResults.serialVersionUID;
 
 		public BattleResultsWrapper() {
-			super(null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			super(null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		}
 
 		private BattleResultsWrapper(BattleResults results) {
 			super(results.getTeamLeaderName(), results.getRank(), results.getScore(), results.getSurvival(),
 					results.getLastSurvivorBonus(), results.getBulletDamage(), results.getBulletDamageBonus(),
 					results.getRamDamage(), results.getRamDamageBonus(), results.getFirsts(), results.getSeconds(),
-					results.getThirds());
+					results.getThirds(), results.getDeaths());
 		}
 
 		public void writeXml(XmlWriter writer, SerializableOptions options) throws IOException {
@@ -192,6 +192,7 @@ class BattleRecordInfo implements Serializable, IXmlSerializable {
 				writer.writeAttribute("firsts", firsts);
 				writer.writeAttribute("seconds", seconds);
 				writer.writeAttribute("thirds", thirds);
+				writer.writeAttribute("deaths", deaths);
 				if (!options.skipVersion) {
 					writer.writeAttribute("ver", serialVersionUID);
 				}
@@ -265,6 +266,13 @@ class BattleRecordInfo implements Serializable, IXmlSerializable {
 							rules.thirds = Integer.parseInt(value);
 						}
 					});
+					reader.expect("deaths", new XmlReader.Attribute() {
+						@Override
+						public void read(String value) {
+							rules.deaths = Integer.parseInt(value);
+						}
+					});
+					
 
 					return rules;
 				}

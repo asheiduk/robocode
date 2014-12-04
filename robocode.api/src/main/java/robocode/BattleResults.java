@@ -41,6 +41,7 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 	protected int firsts;
 	protected int seconds;
 	protected int thirds;
+	protected int deaths;
 
 	/**
 	 * Constructs this BattleResults object.
@@ -70,7 +71,8 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 			double ramDamageBonus,
 			int firsts,
 			int seconds,
-			int thirds
+			int thirds,
+			int deaths
 			) {
 		this.teamLeaderName = teamLeaderName;
 		this.rank = rank;
@@ -84,6 +86,7 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 		this.firsts = firsts;
 		this.seconds = seconds;
 		this.thirds = thirds;
+		this.deaths = deaths;
 	}
 
 	/**
@@ -194,6 +197,15 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 	public int getThirds() {
 		return thirds;
 	}
+	
+	/**
+	 * Returns the number of deaths this robot suffered in the battle.
+	 * 
+	 * @return the number of deaths this robot suffered in the battle.
+	 */
+	public int getDeaths() {
+		return deaths;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -259,6 +271,7 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 			serializer.serialize(buffer, obj.firsts);
 			serializer.serialize(buffer, obj.seconds);
 			serializer.serialize(buffer, obj.thirds);
+			serializer.serialize(buffer,  obj.deaths);
 		}
 
 		public Object deserialize(RbSerializer serializer, ByteBuffer buffer) {
@@ -274,9 +287,10 @@ public class BattleResults implements java.io.Serializable, Comparable<BattleRes
 			int firsts = buffer.getInt();
 			int seconds = buffer.getInt();
 			int thirds = buffer.getInt();
+			int deaths = buffer.getInt();
 
 			return new BattleResults(teamLeaderName, rank, score, survival, lastSurvivorBonus, bulletDamage,
-					bulletDamageBonus, ramDamage, ramDamageBonus, firsts, seconds, thirds);
+					bulletDamageBonus, ramDamage, ramDamageBonus, firsts, seconds, thirds, deaths);
 		}
 	}
 }

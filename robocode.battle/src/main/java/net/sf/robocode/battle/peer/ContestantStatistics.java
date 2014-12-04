@@ -36,6 +36,8 @@ public interface ContestantStatistics { // NO_UCD (use default)
 	int getTotalSeconds();
 
 	int getTotalThirds();
+	
+	int getTotalDeaths();
 
 	double getCurrentScore();
 

@@ -57,7 +57,7 @@ public class BattleRankingTableModel extends AbstractTableModel {
 	}
 
 	public int getColumnCount() {
-		return 12;
+		return 13;
 	}
 
 	public int getRowCount() {
@@ -102,6 +102,9 @@ public class BattleRankingTableModel extends AbstractTableModel {
 
 		case 11:
 			return " 3rds ";
+
+		case 12:
+			return "deaths";
 
 		default:
 			return "";
@@ -174,6 +177,9 @@ public class BattleRankingTableModel extends AbstractTableModel {
 
 		case 11:
 			return "" + statistics.getTotalThirds();
+			
+		case 12:
+			return "" + statistics.getTotalDeaths();
 
 		default:
 			return "";
