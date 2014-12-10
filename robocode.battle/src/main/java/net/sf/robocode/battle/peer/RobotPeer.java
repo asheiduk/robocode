@@ -138,6 +138,8 @@ public final class RobotPeer implements IRobotPeerBattle, IRobotPeer {
 	private final BoundingRectangle boundingBox;
 	private final RbSerializer rbSerializer;
 
+	protected boolean respawnMode = true;
+
 	public RobotPeer(Battle battle, IHostManager hostManager, RobotSpecification robotSpecification, int duplicate, TeamPeer team, int robotIndex) {
 		super();
 
@@ -650,11 +652,43 @@ public final class RobotPeer implements IRobotPeerBattle, IRobotPeer {
 			}
 		}
 	}
+	
+	@Override
+	public void initializeRound() {
+		setInitialPosition(false);
 
-	public void initializeRound(List<RobotPeer> robots, RobotSetup[] initialRobotSetups) {
+		setInitialState();
+
+		status = new AtomicReference<RobotStatus>();
+
+		readoutEvents();
+		readoutTeamMessages();
+		readoutBullets();
+
+		battleText.setLength(0);
+		proxyText.setLength(0);
+
+		// Prepare new execution commands, but copy the colors from the last commands.
+		// Bugfix [2628217] - Robot Colors don't stick between rounds.
+		ExecCommands newExecCommands = new ExecCommands();
+
+		newExecCommands.copyColors(commands.get());
+		commands = new AtomicReference<ExecCommands>(newExecCommands);
+	}
+
+	@Override
+	public void reanimate(){
+		setInitialPosition(true);
+		setInitialState();
+	}
+
+	protected void setInitialPosition(boolean ignoreInitialSetup) {
+		List<RobotPeer> robots = battle.getRobots();
+		RobotSetup[] initialRobotSetups = battle.getInitialRobotSetups();
+		
 		boolean valid = false;
 
-		if (initialRobotSetups != null) {
+		if (!ignoreInitialSetup && initialRobotSetups != null) {
 			int robotIndex = statics.getRobotIndex();
 
 			if (robotIndex >= 0 && robotIndex < initialRobotSetups.length) {
@@ -721,7 +755,9 @@ public final class RobotPeer implements IRobotPeerBattle, IRobotPeer {
 				}
 			}
 		}
+	}
 
+	protected void setInitialState() {
 		setState(RobotState.ACTIVE);
 
 		isWinner = false;
@@ -753,22 +789,6 @@ public final class RobotPeer implements IRobotPeerBattle, IRobotPeer {
 		scanArc.setFrame(-100, -100, 1, 1);
 
 		lastExecutionTime = -1;
-
-		status = new AtomicReference<RobotStatus>();
-
-		readoutEvents();
-		readoutTeamMessages();
-		readoutBullets();
-
-		battleText.setLength(0);
-		proxyText.setLength(0);
-
-		// Prepare new execution commands, but copy the colors from the last commands.
-		// Bugfix [2628217] - Robot Colors don't stick between rounds.
-		ExecCommands newExecCommands = new ExecCommands();
-
-		newExecCommands.copyColors(commands.get());
-		commands = new AtomicReference<ExecCommands>(newExecCommands);
 	}
 
 	private boolean validSpot(List<RobotPeer> robots) {
@@ -820,6 +840,10 @@ public final class RobotPeer implements IRobotPeerBattle, IRobotPeer {
 		if (!isSleeping() && !battle.isDebugging()) {
 			logMessage("\n" + getName() + " still has not started after " + waitMillis + " ms... giving up.");
 		}
+	}
+	
+	public void respawn(){
+		robotProxy.startRound(currentCommands, status.get());
 	}
 
 	public void performLoadCommands() {
@@ -1666,7 +1690,7 @@ public final class RobotPeer implements IRobotPeerBattle, IRobotPeer {
 			battle.registerDeathRobot(this);
 
 			// 'fake' bullet for explosion on self
-			final ExplosionPeer fake = new ExplosionPeer(this, battleRules);
+			final ExplosionPeer fake = new ExplosionPeer(this, battleRules, !respawnMode);
 
 			battle.addBullet(fake);
 		}
@@ -1737,6 +1761,11 @@ public final class RobotPeer implements IRobotPeerBattle, IRobotPeer {
 		if (isAlive()) {
 			bulletUpdates.get().add(bulletStatus);
 		}
+	}
+	
+	@Override
+	public boolean isRespawnMode(){
+		return respawnMode;
 	}
 
 	public int compareTo(ContestantPeer cp) {

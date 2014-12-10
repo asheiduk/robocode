@@ -16,6 +16,8 @@ import java.nio.ByteBuffer;
  * @author Pavel Savara (original)
  */
 public interface IRobotPeer {
+	
+	void reanimate();
 
 	void drainEnergy();
 
@@ -36,4 +38,6 @@ public interface IRobotPeer {
 	void waitForBattleEndImplSerial() throws IOException; // NO_UCD (unused code - used by the .NET plug-in)
 
 	void setupThread(); // NO_UCD (unused code - used by the .NET plug-in)
+
+	boolean isRespawnMode();
 }

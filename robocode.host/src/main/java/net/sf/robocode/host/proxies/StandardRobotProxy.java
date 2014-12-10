@@ -31,6 +31,12 @@ public class StandardRobotProxy extends BasicRobotProxy implements IStandardRobo
 	public StandardRobotProxy(IRobotItem specification, IHostManager hostManager, IRobotPeer peer, RobotStatics statics) {
 		super(specification, hostManager, peer, statics);
 	}
+	
+	@Override
+	protected void respawn() {
+		super.respawn();
+		isStopped = true;
+	};
 
 	@Override
 	protected void initializeRound(ExecCommands commands, RobotStatus status) {

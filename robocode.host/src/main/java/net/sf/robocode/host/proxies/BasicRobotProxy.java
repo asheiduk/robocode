@@ -77,6 +77,15 @@ public class BasicRobotProxy extends HostingRobotProxy implements IBasicRobotPee
 		setSetCallCount(0);
 		setGetCallCount(0);
 	}
+	
+	@Override
+	protected void respawn(){
+		eventManager.reset();
+		eventManager.add(new StatusEvent(status)); // Start event
+
+		setSetCallCount(0);
+		setGetCallCount(0);
+	}
 
 	protected void initializeRound(ExecCommands commands, RobotStatus status) {
 		updateStatus(commands, status);

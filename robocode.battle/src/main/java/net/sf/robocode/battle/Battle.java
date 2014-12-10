@@ -228,6 +228,14 @@ public final class Battle extends BaseBattle {
 	public int getRobotsCount() {
 		return robotsCount;
 	}
+	
+	public List<RobotPeer> getRobots() {
+		return robots;
+	}
+	
+	public RobotSetup[] getInitialRobotSetups() {
+		return initialRobotSetups;
+	}
 
 	public boolean isDebugging() {
 		return RobocodeProperties.isDebuggingOn();
@@ -340,7 +348,7 @@ public final class Battle extends BaseBattle {
 		// At this point the unsafe loader thread will now set itself to wait for a notify
 
 		for (RobotPeer robotPeer : robots) {
-			robotPeer.initializeRound(robots, initialRobotSetups);
+			robotPeer.initializeRound();
 			robotPeer.println("=========================");
 			robotPeer.println("Round " + (getRoundNum() + 1) + " of " + getNumRounds());
 			robotPeer.println("=========================");

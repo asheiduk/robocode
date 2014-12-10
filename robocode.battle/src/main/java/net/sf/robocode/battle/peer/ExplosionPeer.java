@@ -24,8 +24,11 @@ public class ExplosionPeer extends BulletPeer {
 
 	private static final int EXPLOSION_LENGTH = 71;
 
-	ExplosionPeer(RobotPeer owner, BattleRules battleRules) {
+	private final boolean followOwner;
+
+	ExplosionPeer(RobotPeer owner, BattleRules battleRules, boolean followOwner) {
 		super(owner, battleRules, 0);
+		this.followOwner = followOwner;
 		frame = 0;
 		x = owner.getX();
 		y = owner.getY();
@@ -39,8 +42,10 @@ public class ExplosionPeer extends BulletPeer {
 	public final void update(List<RobotPeer> robots, List<BulletPeer> bullets) {
 		frame++;
 
-		x = owner.getX();
-		y = owner.getY();
+		if (followOwner){
+			x = owner.getX();
+			y = owner.getY();
+		}
 
 		updateBulletState();
 	}

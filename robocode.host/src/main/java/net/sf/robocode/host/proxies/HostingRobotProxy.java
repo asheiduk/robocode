@@ -133,6 +133,8 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 	// -----------
 
 	protected abstract void initializeRound(ExecCommands commands, RobotStatus status);
+	
+	protected abstract void respawn();
 
 	public void startRound(ExecCommands commands, RobotStatus status) {
 		initializeRound(commands, status);
@@ -209,19 +211,32 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 
 		if (robotSpecification.isValid() && loadRobotRound()) {
 			try {
-				if (robot != null) {
-					peer.setRunning(true);
-
-					// Process all events for the first turn.
-					// This is done as the first robot status event must occur before the robot
-					// has started running.
-					eventManager.processEvents();
-
-					// Call user code
-					callUserCode();
-				}
-				while (peer.isRunning()) {
-					executeImpl();
+				while(true){
+					try {
+						if (robot != null) {
+							peer.setRunning(true);
+		
+							// Process all events for the first turn.
+							// This is done as the first robot status event must occur before the robot
+							// has started running.
+							eventManager.processEvents();
+							
+							// Call user code
+							callUserCode();
+						}
+						while (peer.isRunning()) {
+							executeImpl();
+						}
+					} catch (DeathException e) {
+						// Leave loop only if ultimative death happened.
+						if( !peer.isRespawnMode() ){
+							throw e;
+						} else {
+							println("SYSTEM: " + statics.getName() + " has died but will respawn");
+							peer.reanimate();
+							respawn();
+						}
+					}
 				}
 			} catch (WinException e) {// Do nothing
 			} catch (AbortedException e) {// Do nothing
