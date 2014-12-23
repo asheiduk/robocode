@@ -255,6 +255,8 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 						if( !peer.isRespawnMode() ){
 							throw e;
 						} else {
+							updateClassLoaderIfNewCode();
+							
 							println("SYSTEM: " + statics.getName() + " has died but will respawn");
 							peer.reanimate();
 							respawn();
@@ -311,6 +313,17 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 		if (runnable != null) {
 			runnable.run();
 		}
+	}
+		
+	private void updateClassLoaderIfNewCode(){
+		// XXX: check for new code - for now always reload stuff
+
+		
+		cleanupClassLoader();
+		initializeClassLoader(robotSpecification);
+		
+		loadClassBattle();
+		loadRobotRound();
 	}
 
 	protected abstract void waitForBattleEndImpl();
