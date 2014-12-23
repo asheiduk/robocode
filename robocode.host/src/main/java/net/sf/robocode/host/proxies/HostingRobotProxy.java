@@ -8,18 +8,29 @@
 package net.sf.robocode.host.proxies;
 
 
+import static net.sf.robocode.io.Logger.logError;
+import static net.sf.robocode.io.Logger.logMessage;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import net.sf.robocode.core.Container;
+import net.sf.robocode.host.HostManager;
+import net.sf.robocode.host.IHostManager;
+import net.sf.robocode.host.IHostedThread;
+import net.sf.robocode.host.IRobotClassLoader;
+import net.sf.robocode.host.IThreadManager;
+import net.sf.robocode.host.JavaHost;
+import net.sf.robocode.host.RobotStatics;
 import net.sf.robocode.host.events.EventManager;
 import net.sf.robocode.host.io.RobotFileSystemManager;
 import net.sf.robocode.host.io.RobotOutputStream;
 import net.sf.robocode.host.security.RobotThreadManager;
-import net.sf.robocode.host.*;
-import static net.sf.robocode.io.Logger.logError;
-import static net.sf.robocode.io.Logger.logMessage;
 import net.sf.robocode.peer.BadBehavior;
 import net.sf.robocode.peer.ExecCommands;
 import net.sf.robocode.peer.IRobotPeer;
 import net.sf.robocode.repository.IRobotItem;
-import net.sf.robocode.core.Container;
 import robocode.RobotStatus;
 import robocode.exception.AbortedException;
 import robocode.exception.DeathException;
@@ -27,10 +38,6 @@ import robocode.exception.DisabledException;
 import robocode.exception.WinException;
 import robocode.robotinterfaces.IBasicRobot;
 import robocode.robotinterfaces.peer.IBasicRobotPeer;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 
 // XXX Remember to update the .NET version whenever a change is made to this class!
@@ -57,14 +64,17 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 
 	private final Set<String> securityViolations = Collections.synchronizedSet(new HashSet<String>());
 
+	// XXX: temp only
+	private GCWatcher gcWatcher = new GCWatcher();
+
 	HostingRobotProxy(IRobotItem robotSpecification, IHostManager hostManager, IRobotPeer peer, RobotStatics statics) {
 		this.peer = peer;
 		this.statics = statics;
 		this.hostManager = hostManager;
 		this.robotSpecification = robotSpecification;
-
-		robotClassLoader = getHost(robotSpecification).createLoader(robotSpecification);
-		robotClassLoader.setRobotProxy(this);
+		
+		gcWatcher.start();
+		initializeClassLoader(robotSpecification);
 
 		out = new RobotOutputStream();
 		robotThreadManager = new RobotThreadManager(this);
@@ -76,6 +86,13 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 				robotSpecification.getRootPath());
 
 		robotFileSystemManager.initialize();
+	}
+
+	protected void initializeClassLoader(IRobotItem robotSpecification) {
+		robotClassLoader = getHost(robotSpecification).createLoader(robotSpecification);
+		robotClassLoader.setRobotProxy(this);
+		
+		gcWatcher.watch(robotClassLoader);
 	}
 
 	private JavaHost getHost(IRobotItem robotSpecification) {
@@ -98,6 +115,10 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 		robotThreadManager = null;
 
 		// Cleanup and remove class manager
+		cleanupClassLoader();
+	}
+
+	protected void cleanupClassLoader() {
 		if (robotClassLoader != null) {
 			robotClassLoader.cleanup();
 			robotClassLoader = null;
@@ -175,6 +196,8 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 				println("SYSTEM: Skipping robot: " + statics.getName());
 				return false;
 			}
+			gcWatcher.watch(robot);
+			
 			robot.setOut(out);
 			robot.setPeer((IBasicRobotPeer) this);
 			eventManager.setRobot(robot);
