@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.robocode.core.Container;
+import net.sf.robocode.host.GCWatcher;
 import net.sf.robocode.host.HostManager;
 import net.sf.robocode.host.IHostManager;
 import net.sf.robocode.host.IHostedThread;
@@ -65,7 +66,7 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 	private final Set<String> securityViolations = Collections.synchronizedSet(new HashSet<String>());
 
 	// XXX: temp only
-	private GCWatcher gcWatcher = new GCWatcher();
+	private GCWatcher gcWatcher = Container.getComponent(GCWatcher.class);
 
 	HostingRobotProxy(IRobotItem robotSpecification, IHostManager hostManager, IRobotPeer peer, RobotStatics statics) {
 		this.peer = peer;
@@ -73,7 +74,6 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 		this.hostManager = hostManager;
 		this.robotSpecification = robotSpecification;
 		
-		gcWatcher.start();
 		initializeClassLoader(robotSpecification);
 
 		out = new RobotOutputStream();
@@ -92,7 +92,7 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 		robotClassLoader = getHost(robotSpecification).createLoader(robotSpecification);
 		robotClassLoader.setRobotProxy(this);
 		
-		gcWatcher.watch(robotClassLoader);
+		gcWatcher.watch(robotClassLoader, statics.getName());
 	}
 
 	private JavaHost getHost(IRobotItem robotSpecification) {
@@ -196,7 +196,7 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 				println("SYSTEM: Skipping robot: " + statics.getName());
 				return false;
 			}
-			gcWatcher.watch(robot);
+			gcWatcher.watch(robot, statics.getName());
 			
 			robot.setOut(out);
 			robot.setPeer((IBasicRobotPeer) this);

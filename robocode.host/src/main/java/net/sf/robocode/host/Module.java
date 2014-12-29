@@ -21,6 +21,7 @@ public class Module extends BaseModule {
 		Container.cache.addComponent(IHostManager.class, HostManager.class);
 		Container.cache.addComponent(ICpuManager.class, CpuManager.class);
 		Container.cache.addComponent(IThreadManager.class, ThreadManager.class);
+		Container.cache.addComponent(GCWatcher.class);
 		Container.cache.addComponent("robocode.host.java", JavaHost.class);
 	}
 }
