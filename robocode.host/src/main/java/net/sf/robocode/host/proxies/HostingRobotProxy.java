@@ -122,6 +122,9 @@ abstract class HostingRobotProxy implements IHostingRobotProxy, IHostedThread {
 		if (robotClassLoader != null) {
 			robotClassLoader.cleanup();
 			robotClassLoader = null;
+			
+			// Give some hint to the GC
+			System.gc();
 		}
 	}
 
